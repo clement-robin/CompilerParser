@@ -1,18 +1,18 @@
-CC=cc
-CFLAGS= -Wall
-EXE=compil
+CC=gcc
+OPTS=-Wall
+FOLDER=sources
+MAIN=main.c
+EXE=LRanalyzer
+DEPS=$(FOLDER)/LRGrammar.h $(FOLDER)/read_file.h
+PRECOMP=$(FOLDER)/LRGrammar.o $(FOLDER)/read_file.o
 
-all: grammaire.o
-	rm -f $(EXE)
-	$(CC) $(CFLAGS) grammaire.o -o $(EXE)
+all: $(PRECOMP)
+	@$(CC) $(OPT) $(MAIN) $(PRECOMP) -o $(EXE)
+	@if [ -e $(EXE) ]; then echo 'Compilation effectue\nlancement : ./$(EXE)'; fi
 
-exe: grammaire.o
-	clear
-	./$(EXE)
-
-graph.o: grammaire.cpp grammaire.h
-	$(CC) $(CFLAGS) -c graph.cpp
+%.o: %.c $(DEPS)
+	@$(CC) -c -o $@ $<
 
 clean:
-	rm -f *.o
-	rm -f $(EXE)
+	rm $(FOLDER)/*.o
+	rm $(EXE)
