@@ -3,8 +3,12 @@
 
 int main(int argc, char const *argv[])
 {
-    char* fichier;
-    char* mot;
+    int sizeMot;
+    char * pathFichier;
+    char * mot;
+    char * flot;
+    char * pile;
+    char * transition = (char * )malloc(2 * sizeof(char));
     file_read analyseurLR;
 
     
@@ -24,67 +28,88 @@ int main(int argc, char const *argv[])
 
     // Verification de l'existance du fichier (dans assets/) 
 
-    fichier = (char * )malloc(strlen(argv[1])+1);
-    strcpy( fichier, argv[1]);
+    pathFichier = (char * )malloc(strlen(argv[1])+1 * sizeof(char));
+    strcpy( pathFichier, argv[1]);
     
-    FILE* file = fopen(fichier, "r+");
+    FILE* file = fopen(pathFichier, "r+");
     printf("Validation du fichier en cours ...\n");
 
     if (file != NULL)
     {
-        printf("--> Le fichier %s existe\n",fichier);
+        printf("--> Le fichier %s existe\n",pathFichier);
         
         // Verification si le fichier est lisible par read_file
-        analyseurLR = read_file(fichier);
-        printf("--> Le fichier %s est bien lu\n",fichier);
+        analyseurLR = read_file(pathFichier);
+        printf("--> Le fichier %s est bien lu\n",pathFichier);
         fclose(file);
     }
     else
     {
-        fprintf(stderr,"--> Impossible d'ouvrir le fichier %s\n",fichier);
+        fprintf(stderr,"--> Impossible d'ouvrir le fichier %s\n",pathFichier);
         exit(EXIT_FAILURE);
 
     }
 
     // Verification si le mot est valide 
     printf("Validation du en cours ...\n");
-    mot = (char * )malloc(strlen(argv[2])+1);
-    strcpy( mot, argv[2]);
+    sizeMot = strlen(argv[2])+1;
+    mot = (char * )malloc(sizeMot * sizeof(char));
+    strcpy(mot, argv[2]);
     printf("--> Le mot est valide ");
 
-    printf("\n\nFichier : %s\nMot : %s\n",fichier,mot);
+    printf("\n\nFichier : %s\nMot : %s\n",pathFichier,mot);
 
-    affichage_debut(strlen(mot));
-    char * flot = mot;
-    char * pile = "0";
+    // Initialistion du flot et de la pile
+    flot = (char * )malloc(sizeMot * sizeof(char));
+    strcpy(flot,mot);
+    pile = (char * )malloc(sizeMot * sizeof(char));
+    strcpy(pile,"0");
+    strcpy(transition,"  ");
 
-    char * val = "d2";
+    affichage_debut(sizeMot);
+    affichage_ligne(transition, flot, pile, sizeMot);
 
-    affichage_ligne(val,flot,pile,strlen(mot));
+    signed char transMot = analyseurLR.t.trans[256 * 0 + mot[0]];
+    if(transMot + '0' > 0) {
+        // valeur de la transition
+        transition[0] = 'd';
+        transition[1] = transMot + '0';
 
-    flot = "bc";
-    affichage_ligne(val,flot,pile,strlen(mot));
+        // on retire le 1er element du flot
+        char caractereRetire = flot[0];
+        if (flot[0]!='\0')
+            memmove(flot, flot + 1, strlen(flot));
 
-    flot = "c";
-    affichage_ligne(val,flot,pile,strlen(mot));
+        // on ajoute a la pile l'element retire + la valeur de reduction
+        int taillepile = strlen(pile);
+        pile[taillepile] = caractereRetire;
+        pile[taillepile+1] = transMot + '0';
+        pile[taillepile+2] = '\0';
+    }
+    else if(transMot + '0' == -127){
+        pile = "acc";
+    }
+    else if(transMot + '0' < 0) {
+        printf("char : |r%c|", transMot + '0');
+        transition[0] = 'r';
+        transition[1] = transMot + '0';
+        printf("transition : |%s|",transition);
 
-    flot = "";
-    pile ="acc";
-    affichage_ligne(val,flot,pile,strlen(mot));
+    }
+    else if (transMot + '0' == 0) {
+        pile = "err";
+    }
+    
 
-    printf("\n\n\n");
+
+    affichage_ligne(transition, flot, pile, sizeMot);
 
     
 
-    // tester et la pile / float et 
+    //void affichage_ligne(transition, flot, pile, sizeMot);
 
 
-
-
-
-    /*print("marwane : %s",marwane.G.rules[0].rhs);
-    print_grammar(marwane.G);
-    print_table(marwane.t,marwane.G);*/
+    printf("\n\n\n");
 
     return 0;
 }

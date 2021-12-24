@@ -30,8 +30,11 @@ void affichage_ligne(char * val, char * flot, char * pile,int tailleMot) {
     {
         printf(" ");
     }
-    if (strcmp(pile,"acc") != 0)
-        printf("%s | %s\n",flot,pile);
-    else
+    if (strcmp(pile,"acc") == 0)
         printf("accept");
+    else if (strcmp(pile,"err") == 0)
+        printf("error");
+    else
+        printf("%s | %s\n",flot,pile);
+
 }
