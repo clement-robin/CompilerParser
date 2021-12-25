@@ -3,6 +3,7 @@
 
 int main(int argc, char const *argv[])
 {
+    // Variables
     int sizeMot;
     int sizePile = 1;
     char * pathFichier;
@@ -29,12 +30,11 @@ int main(int argc, char const *argv[])
     }
 
     // Verification de l'existance du fichier (dans assets/) 
-
     pathFichier = (char * )malloc(strlen(argv[1])+1 * sizeof(char));
     strcpy( pathFichier, argv[1]);
     
     FILE* file = fopen(pathFichier, "r+");
-    printf("Validation du fichier en cours ...\n");
+    printf("\nValidation du fichier en cours ...\n");
 
     if (file != NULL)
     {
@@ -53,13 +53,14 @@ int main(int argc, char const *argv[])
     }
 
     // Verification si le mot est valide 
-    printf("Validation du en cours ...\n");
+    printf("Validation du mot en cours ...\n");
     sizeMot = strlen(argv[2])+1;
     mot = (char * )malloc(sizeMot * sizeof(char));
     strcpy(mot, argv[2]);
-    printf("--> Le mot est valide ");
+    printf("--> Le mot \"%s\" est valide\n\n",mot);
 
-    printf("\n\nFichier : %s\nMot : %s\n",pathFichier,mot);
+    // Affichage des 2 parametres valides
+    printf("Analyseur SLR sur la table %s avec le mot \"%s\" :\n",pathFichier,mot);
 
     // Initialistion du flot et de la pile
     flot = (char * )malloc(sizeMot * sizeof(char));
@@ -67,53 +68,56 @@ int main(int argc, char const *argv[])
     strcpy(pile,"0");
     strcpy(transition,"  ");
 
-    // affichage du tableau et de la 1er ligne
+    // Affichage du tableau et de la 1er ligne
     affichage_debut(sizeMot);
     affichage_ligne(transition, flot, pile, sizeMot);
 
-    signed char transMot = analyseurLR.t.trans[256 * 0 + mot[0]];
-    
-    if(transMot + '0' > 0) {
-        // valeur de la transition
-        transition[0] = 'd';
-        transition[1] = transMot + '0';
+    // recuperation de la valeur de transition dans le tableau
+    signed char valeurTransition = analyseurLR.t.trans[mot[0]];
 
-        // on retire le 1er element du flot
-        caractereRetire = flot[0];
-        if (flot[0]!='\0')
-            memmove(flot, flot + 1, strlen(flot));
+    // boucle qui s'arrete si la valeur de transition est une erreur ou une acceptation
+    for (int i = 0; i < 2; i++)
+    {
+        /*** cas du decalage ***/
+        if(valeurTransition > 0) { 
+            // valeur de la transition
+            transition[0] = 'd';
+            transition[1] = valeurTransition + '0';
+            
+            // on retire le 1er element du flot
+            caractereRetire = flot[0];
+            if (strcmp(flot,"\0") != 0)
+                memmove(flot, flot + 1, strlen(flot));
 
-        // on ajoute a la pile l'element retire + la valeur de reduction
-        sizePile += 2;
-        pile = (char *) realloc( pile , sizePile * sizeof(int) );
+            // on ajoute a la pile l'element retire + la valeur de reduction
+            sizePile += 2;
+            pile = (char *) realloc( pile , sizePile * sizeof(int) );
 
-        pile[sizePile-2] = caractereRetire;
-        pile[sizePile-1] = transMot + '0';
+            pile[sizePile-2] = caractereRetire;
+            pile[sizePile-1] = valeurTransition + '0';
+        }
+        /*** cas d'une acceptation (le mot est reconnu) ***/
+        else if(valeurTransition == -127){ 
+            pile = "acc";
+        }
+        /*** cas d'une reduction ***/
+        else if(valeurTransition < 0) { 
+            transition[0] = 'r';
+            transition[1] = -valeurTransition + '0';
+
+        }
+        /*** cas d'une erreur (le mot c'est pas reconnu) ***/
+        else if (valeurTransition == 0) {
+            pile = "err";
+        }
+        
+        affichage_ligne(transition, flot, pile, sizeMot);
+
+        valeurTransition = analyseurLR.t.trans[(256 * valeurTransition) + flot[0]];
+        //printf("valeurTransition : |%d|\n",valeurTransition);
     }
-    else if(transMot + '0' == -127){
-        pile = "acc";
-    }
-    else if(transMot + '0' < 0) {
-        printf("char : |r%c|", transMot + '0');
-        transition[0] = 'r';
-        transition[1] = transMot + '0';
-        printf("transition : |%s|",transition);
 
-    }
-    else if (transMot + '0' == 0) {
-        pile = "err";
-    }
-    
-
-
-    affichage_ligne(transition, flot, pile, sizeMot);
-
-    
-
-    //void affichage_ligne(transition, flot, pile, sizeMot);
-
-
-    printf("\n\n\n");
+    printf("\n\n");
 
     return 0;
 }
