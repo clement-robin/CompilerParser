@@ -1,3 +1,5 @@
+/* Author : Clement ROBIN & Lucas DESHAYES */
+
 #include "outils.h"
 
 

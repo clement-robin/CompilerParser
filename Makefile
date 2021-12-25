@@ -1,3 +1,5 @@
+# Author : Clement ROBIN & Lucas DESHAYES 
+
 CC=gcc
 OPTS=-Wall
 FOLDER=sources

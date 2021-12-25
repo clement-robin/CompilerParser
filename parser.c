@@ -1,3 +1,5 @@
+/* Author : Clement ROBIN & Lucas DESHAYES */
+
 #include "outils.h"
 
 
@@ -90,10 +92,11 @@ int main(int argc, char const *argv[])
             if (strcmp(flot,"\0") != 0)
                 memmove(flot, flot + 1, strlen(flot));
 
-            // on ajoute a la pile l'element retire + la valeur de reduction
+            // on ajoute a la pile l'element retire 
             sizePile += 2;
             pile = (char *) realloc( pile , sizePile * sizeof(int) );
 
+            // puis on ajoute a la pile la valeur de reduction
             pile[sizePile-2] = caractereRetire;
             pile[sizePile-1] = valeurTransition + '0';
             pile[sizePile] = '\0';
@@ -148,12 +151,8 @@ int main(int argc, char const *argv[])
         //printf("valeurTransition : |%d|\n",valeurTransition);
     }
 
-
-
     printf("\n\n");
 
-
-    
     return 0;
 }
 
