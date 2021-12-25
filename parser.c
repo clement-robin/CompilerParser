@@ -76,10 +76,11 @@ int main(int argc, char const *argv[])
     signed char valeurTransition = analyseurLR.t.trans[mot[0]];
 
     // boucle qui s'arrete si la valeur de transition est une erreur ou une acceptation
-    for (int i = 0; i < 2; i++)
+    for (int i = 0; i < 4; i++)
     {
         /*** cas du decalage ***/
-        if(valeurTransition > 0) { 
+        if(valeurTransition > 0) {
+
             // valeur de la transition
             transition[0] = 'd';
             transition[1] = valeurTransition + '0';
@@ -102,8 +103,31 @@ int main(int argc, char const *argv[])
         }
         /*** cas d'une reduction ***/
         else if(valeurTransition < 0) { 
+
+            // valeur de la transition
             transition[0] = 'r';
             transition[1] = -valeurTransition + '0';
+
+            /*** cas d'une transition en Epsilon (S: ) ***/
+            if (strlen(analyseurLR.G.rules[-valeurTransition-1].rhs)==0) {
+                //le flot ne change pas
+                // on ajoute S puis la valeur de la transtion a la pile
+                sizePile += 2;
+                pile = (char *) realloc( pile , sizePile * sizeof(int) );
+
+                pile[sizePile-2] = analyseurLR.G.rules[-valeurTransition-1].lhs;
+                pile[sizePile-1] = analyseurLR.t.trans[256 *(pile[sizePile-3]-'0'+1)  - analyseurLR.G.rules[-valeurTransition-1].lhs]+'0';
+            }
+            /*** cas d'une transition avec un caractere non terminal (exemple S: a$Sb) ***/
+            else {
+                // le flot ne change pas
+                // on cherche a reconnaitre la regle dans la pile
+                //char temp = strlen(fichierLu.G.rules[-transMot-1].rhs);
+
+                // on retire la regle de la pile
+
+                // on ajoute a la pile le caractere non terminal correspondant + la valeur de reduction 
+            }
 
         }
         /*** cas d'une erreur (le mot c'est pas reconnu) ***/
@@ -113,9 +137,16 @@ int main(int argc, char const *argv[])
         
         affichage_ligne(transition, flot, pile, sizeMot);
 
-        valeurTransition = analyseurLR.t.trans[(256 * valeurTransition) + flot[0]];
+        valeurTransition = analyseurLR.t.trans[256 *(pile[sizePile-1]-'0') + flot[0]];
         //printf("valeurTransition : |%d|\n",valeurTransition);
     }
+
+
+    free(pathFichier);
+    free(pile);
+    free(flot);
+    free(mot);
+    free(transition);
 
     printf("\n\n");
 
