@@ -76,7 +76,7 @@ int main(int argc, char const *argv[])
     signed char valeurTransition = analyseurLR.t.trans[mot[0]];
 
     // boucle qui s'arrete si la valeur de transition est une erreur ou une acceptation
-    for (int i = 0; i < 4; i++)
+    while(strcmp(pile,"acc") != 0 && strcmp(pile,"err") != 0)
     {
         /*** cas du decalage ***/
         if(valeurTransition > 0) {
@@ -96,6 +96,7 @@ int main(int argc, char const *argv[])
 
             pile[sizePile-2] = caractereRetire;
             pile[sizePile-1] = valeurTransition + '0';
+            pile[sizePile] = '\0';
         }
         /*** cas d'une acceptation (le mot est reconnu) ***/
         else if(valeurTransition == -127){ 
@@ -110,11 +111,12 @@ int main(int argc, char const *argv[])
 
             /*** cas d'une transition en Epsilon (S: ) ***/
             if (strlen(analyseurLR.G.rules[-valeurTransition-1].rhs)==0) {
-                //le flot ne change pas
-                // on ajoute S puis la valeur de la transtion a la pile
+                // le flot ne change pas
+                // on ajoute a la pile le caractere non terminal correspondant
                 sizePile += 2;
                 pile = (char *) realloc( pile , sizePile * sizeof(int) );
-
+                
+                // puis on ajoute a la pile la valeur de reduction
                 pile[sizePile-2] = analyseurLR.G.rules[-valeurTransition-1].lhs;
                 pile[sizePile-1] = analyseurLR.t.trans[256 *(pile[sizePile-3]-'0'+1)  - analyseurLR.G.rules[-valeurTransition-1].lhs]+'0';
             }
@@ -122,11 +124,16 @@ int main(int argc, char const *argv[])
             else {
                 // le flot ne change pas
                 // on cherche a reconnaitre la regle dans la pile
-                //char temp = strlen(fichierLu.G.rules[-transMot-1].rhs);
+                int nbCaractereRegle = strlen(analyseurLR.G.rules[-valeurTransition-1].rhs);
 
                 // on retire la regle de la pile
+                sizePile = sizePile -(2*(nbCaractereRegle-1));
+                pile = (char *) realloc( pile , sizePile * sizeof(char) );
 
                 // on ajoute a la pile le caractere non terminal correspondant + la valeur de reduction 
+                pile[sizePile-2] = analyseurLR.G.rules[-valeurTransition-1].lhs;
+                pile[sizePile-1] = analyseurLR.t.trans[256 *(pile[sizePile-3]-'0'+1)  - analyseurLR.G.rules[-valeurTransition-1].lhs]+'0';
+                pile[sizePile] = '\0';
             }
 
         }
@@ -142,14 +149,11 @@ int main(int argc, char const *argv[])
     }
 
 
-    free(pathFichier);
-    free(pile);
-    free(flot);
-    free(mot);
-    free(transition);
 
     printf("\n\n");
 
+
+    
     return 0;
 }
 

@@ -24,7 +24,10 @@ void affichage_debut(int tailleMot) {
  * @param tailleMot taille du mot 
  */
 void affichage_ligne(char * val, char * flot, char * pile,int tailleMot) {
-    printf("%s",val);
+    if (strcmp(pile,"acc") == 0 || strcmp(pile,"err") == 0)
+        printf("  ");
+    else
+        printf("%s",val);
     int diff = tailleMot-strlen(flot);
     for (int i = 0; i < 4+diff; i++)
     {
