@@ -4,11 +4,13 @@
 int main(int argc, char const *argv[])
 {
     int sizeMot;
+    int sizePile = 1;
     char * pathFichier;
     char * mot;
     char * flot;
-    char * pile;
+    char * pile = (char * )malloc(1 * sizeof(char));
     char * transition = (char * )malloc(2 * sizeof(char));
+    char caractereRetire;
     file_read analyseurLR;
 
     
@@ -62,29 +64,31 @@ int main(int argc, char const *argv[])
     // Initialistion du flot et de la pile
     flot = (char * )malloc(sizeMot * sizeof(char));
     strcpy(flot,mot);
-    pile = (char * )malloc(sizeMot * sizeof(char));
     strcpy(pile,"0");
     strcpy(transition,"  ");
 
+    // affichage du tableau et de la 1er ligne
     affichage_debut(sizeMot);
     affichage_ligne(transition, flot, pile, sizeMot);
 
     signed char transMot = analyseurLR.t.trans[256 * 0 + mot[0]];
+    
     if(transMot + '0' > 0) {
         // valeur de la transition
         transition[0] = 'd';
         transition[1] = transMot + '0';
 
         // on retire le 1er element du flot
-        char caractereRetire = flot[0];
+        caractereRetire = flot[0];
         if (flot[0]!='\0')
             memmove(flot, flot + 1, strlen(flot));
 
         // on ajoute a la pile l'element retire + la valeur de reduction
-        int taillepile = strlen(pile);
-        pile[taillepile] = caractereRetire;
-        pile[taillepile+1] = transMot + '0';
-        pile[taillepile+2] = '\0';
+        sizePile += 2;
+        pile = (char *) realloc( pile , sizePile * sizeof(int) );
+
+        pile[sizePile-2] = caractereRetire;
+        pile[sizePile-1] = transMot + '0';
     }
     else if(transMot + '0' == -127){
         pile = "acc";
