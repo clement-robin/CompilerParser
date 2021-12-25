@@ -15,7 +15,7 @@ void affichage_debut(int tailleMot) {
     {
         printf(" ");
     }
-    printf("Flot  |   Pile\n  -----------------------------------\n");
+    printf("Flot  |   Pile\n  ------------------------------\n");
 }
 
 /**

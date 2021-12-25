@@ -6,7 +6,6 @@
 #include "sources/read_file.h"
 #include "sources/LRGrammar.h"
 
-__THROW
 
 /******* Fonctions d'affichage ******/
 

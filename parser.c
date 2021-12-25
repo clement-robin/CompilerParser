@@ -5,7 +5,7 @@
 
 int main(int argc, char const *argv[])
 {
-    // Variables
+    /*** VARIABLES ***/
     int sizeMot;
     int sizePile = 1;
     char * pathFichier;
@@ -16,8 +16,7 @@ int main(int argc, char const *argv[])
     char caractereRetire;
     file_read analyseurLR;
 
-    
-    // Verification du bon nombre d'arguments
+    /*** VERIFICATION : bon nombre d'arguments ? -> 3 attendus ***/
     if(argc < 3) {
         printf("erreur -- trop peu d'arguments (tableau SLR et mot a tester requis)\n");
         exit(EXIT_FAILURE);
@@ -30,8 +29,7 @@ int main(int argc, char const *argv[])
         }
         exit(EXIT_FAILURE);
     }
-
-    // Verification de l'existance du fichier (dans assets/) 
+    /*** VERIFICATION : le fichier existe ? (dans assets/) ***/
     pathFichier = (char * )malloc(strlen(argv[1])+1 * sizeof(char));
     strcpy( pathFichier, argv[1]);
     
@@ -42,7 +40,7 @@ int main(int argc, char const *argv[])
     {
         printf("--> Le fichier %s existe\n",pathFichier);
         
-        // Verification si le fichier est lisible par read_file
+        /*** VERIFICATION : le fichier est lisible par read_file ? ***/
         analyseurLR = read_file(pathFichier);
         printf("--> Le fichier %s est bien lu\n",pathFichier);
         fclose(file);
@@ -54,12 +52,17 @@ int main(int argc, char const *argv[])
 
     }
 
-    // Verification si le mot est valide 
+    /*** VERIFICATION : le mot est valide ? ***/
     printf("Validation du mot en cours ...\n");
     sizeMot = strlen(argv[2])+1;
     mot = (char * )malloc(sizeMot * sizeof(char));
     strcpy(mot, argv[2]);
     printf("--> Le mot \"%s\" est valide\n\n",mot);
+
+
+    /*********************************/
+    /*** DEBUT DE L'ALGORITHME SLR ***/
+    /*********************************/
 
     // Affichage des 2 parametres valides
     printf("Analyseur SLR sur la table %s avec le mot \"%s\" :\n",pathFichier,mot);
@@ -74,7 +77,7 @@ int main(int argc, char const *argv[])
     affichage_debut(sizeMot);
     affichage_ligne(transition, flot, pile, sizeMot);
 
-    // recuperation de la valeur de transition dans le tableau
+    // recuperation de la 1ere valeur de transition dans le tableau
     signed char valeurTransition = analyseurLR.t.trans[mot[0]];
 
     // boucle qui s'arrete si la valeur de transition est une erreur ou une acceptation
@@ -95,9 +98,9 @@ int main(int argc, char const *argv[])
             // on ajoute a la pile l'element retire 
             sizePile += 2;
             pile = (char *) realloc( pile , sizePile * sizeof(int) );
+            pile[sizePile-2] = caractereRetire;
 
             // puis on ajoute a la pile la valeur de reduction
-            pile[sizePile-2] = caractereRetire;
             pile[sizePile-1] = valeurTransition + '0';
             pile[sizePile] = '\0';
         }
@@ -126,7 +129,7 @@ int main(int argc, char const *argv[])
             /*** cas d'une transition avec un caractere non terminal (exemple S: a$Sb) ***/
             else {
                 // le flot ne change pas
-                // on cherche a reconnaitre la regle dans la pile
+                // on cherche le nombre de caractere de la regle reconnu
                 int nbCaractereRegle = strlen(analyseurLR.G.rules[-valeurTransition-1].rhs);
 
                 // on retire la regle de la pile
@@ -145,11 +148,16 @@ int main(int argc, char const *argv[])
             pile = "err";
         }
         
+        // Affiche de la ligne selon la transiton, le flot, la pile et la taille du mot
         affichage_ligne(transition, flot, pile, sizeMot);
 
+        // recuperation de la nouvelle valeur de transition dans le tableau
         valeurTransition = analyseurLR.t.trans[256 *(pile[sizePile-1]-'0') + flot[0]];
-        //printf("valeurTransition : |%d|\n",valeurTransition);
     }
+
+    /*******************************/
+    /*** FIN DE L'ALGORITHME SLR ***/
+    /*******************************/
 
     printf("\n\n");
 
