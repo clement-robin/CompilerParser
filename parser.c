@@ -13,7 +13,9 @@ int main(int argc, char const *argv[])
     char * flot;
     char * pile = (char * )malloc(1 * sizeof(char));
     char * transition = (char * )malloc(2 * sizeof(char));
+    char * listeRegle = (char * )malloc(100 * sizeof(char));
     char caractereRetire;
+    char caractereNonTerminal;
     file_read analyseurLR;
 
     /*** VERIFICATION : bon nombre d'arguments ? -> 3 attendus ***/
@@ -67,11 +69,12 @@ int main(int argc, char const *argv[])
     // Affichage des 2 parametres valides
     printf("Analyseur SLR sur la table %s avec le mot \"%s\" :\n",pathFichier,mot);
 
-    // Initialistion du flot et de la pile
+    // Initialistion du flot, de la pile
     flot = (char * )malloc(sizeMot * sizeof(char));
     strcpy(flot,mot);
     strcpy(pile,"0");
     strcpy(transition,"  ");
+    strcpy(listeRegle,"");
 
     // Affichage du tableau et de la 1er ligne
     affichage_debut(sizeMot);
@@ -97,33 +100,48 @@ int main(int argc, char const *argv[])
 
             // on ajoute a la pile l'element retire 
             sizePile += 2;
-            pile = (char *) realloc( pile , sizePile * sizeof(int) );
+            pile = (char *) realloc( pile , sizePile * sizeof(char) );
             pile[sizePile-2] = caractereRetire;
 
             // puis on ajoute a la pile la valeur de reduction
             pile[sizePile-1] = valeurTransition + '0';
             pile[sizePile] = '\0';
+
+            // liste
+            char * buffer = (char *) malloc(strlen(listeRegle));
+            char * ajout = (char *) malloc(3);
+    
+            ajout[0] = caractereRetire;
+            ajout[1] = '(';
+            ajout[2] = ')';
+            ajout[3] = '\0';
+            strcat(strcpy(buffer, ajout), listeRegle);
+            listeRegle = buffer;
         }
         /*** cas d'une acceptation (le mot est reconnu) ***/
         else if(valeurTransition == -127){ 
             pile = "acc";
         }
         /*** cas d'une reduction ***/
-        else if(valeurTransition < 0) { 
+        else if(valeurTransition < 0) {
 
             // valeur de la transition
             transition[0] = 'r';
             transition[1] = -valeurTransition + '0';
+
+            //Symbole non terminal de la regle 
+            caractereNonTerminal = analyseurLR.G.rules[-valeurTransition-1].lhs;
+
 
             /*** cas d'une transition en Epsilon (S: ) ***/
             if (strlen(analyseurLR.G.rules[-valeurTransition-1].rhs)==0) {
                 // le flot ne change pas
                 // on ajoute a la pile le caractere non terminal correspondant
                 sizePile += 2;
-                pile = (char *) realloc( pile , sizePile * sizeof(int) );
+                pile = (char *) realloc( pile , sizePile * sizeof(char) );
                 
                 // puis on ajoute a la pile la valeur de reduction
-                pile[sizePile-2] = analyseurLR.G.rules[-valeurTransition-1].lhs;
+                pile[sizePile-2] = caractereNonTerminal;
                 pile[sizePile-1] = analyseurLR.t.trans[256 *(pile[sizePile-3]-'0'+1)  - analyseurLR.G.rules[-valeurTransition-1].lhs]+'0';
             }
             /*** cas d'une transition avec un caractere non terminal (exemple S: a$Sb) ***/
@@ -137,23 +155,44 @@ int main(int argc, char const *argv[])
                 pile = (char *) realloc( pile , sizePile * sizeof(char) );
 
                 // on ajoute a la pile le caractere non terminal correspondant + la valeur de reduction 
-                pile[sizePile-2] = analyseurLR.G.rules[-valeurTransition-1].lhs;
+                pile[sizePile-2] = caractereNonTerminal;
                 pile[sizePile-1] = analyseurLR.t.trans[256 *(pile[sizePile-3]-'0'+1)  - analyseurLR.G.rules[-valeurTransition-1].lhs]+'0';
                 pile[sizePile] = '\0';
-            }
 
+
+            }
+            
+            // ajout a la liste 
+            char * buffer = (char *) malloc(strlen(listeRegle));
+            char * ajoutDebut = (char *) malloc(2);
+
+    
+            ajoutDebut[0] = caractereNonTerminal;
+            ajoutDebut[1] = '(';
+            ajoutDebut[2] = '\0';
+
+    
+            strcat(strcpy(buffer, ajoutDebut), listeRegle);
+            strcat(buffer, ")");
+            listeRegle = buffer;
+            //S(a()S(a()S(a()S(a()S()b())b())b())b())
         }
         /*** cas d'une erreur (le mot c'est pas reconnu) ***/
         else if (valeurTransition == 0) {
             pile = "err";
         }
-        
-        // Affiche de la ligne selon la transiton, le flot, la pile et la taille du mot
-        affichage_ligne(transition, flot, pile, sizeMot);
 
         // recuperation de la nouvelle valeur de transition dans le tableau
         valeurTransition = analyseurLR.t.trans[256 *(pile[sizePile-1]-'0') + flot[0]];
+
+        // Affiche de la ligne selon la transiton, le flot, la pile et la taille du mot
+        affichage_ligne(transition, flot, pile, sizeMot);
+        if (strcmp(pile,"acc") == 0) {
+                printf("\n\n%s\n\n",listeRegle);
+
+        }
     }
+
 
     /*******************************/
     /*** FIN DE L'ALGORITHME SLR ***/
