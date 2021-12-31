@@ -12,13 +12,15 @@ int main(int argc, char const *argv[])
     char * mot;
     char * flot;
     char * pile = (char * )malloc(1 * sizeof(char));
-    char * transition = (char * )malloc(2 * sizeof(char));
-    char * listeRegle = (char * )malloc(100 * sizeof(char));
+    char * transition = (char *)malloc(2 * sizeof(char));
+    char * listeRegle = (char *)malloc(100 * sizeof(char));
     char caractereRetire;
     char caractereNonTerminal;
     file_read analyseurLR;
 
     /*** VERIFICATION : bon nombre d'arguments ? -> 3 attendus ***/
+
+    
     if(argc < 3) {
         printf("erreur -- trop peu d'arguments (tableau SLR et mot a tester requis)\n");
         exit(EXIT_FAILURE);
@@ -36,8 +38,7 @@ int main(int argc, char const *argv[])
     strcpy( pathFichier, argv[1]);
     
     FILE* file = fopen(pathFichier, "r+");
-    printf("\nValidation du fichier en cours ...\n");
-
+    
     if (file != NULL)
     {
         printf("--> Le fichier %s existe\n",pathFichier);
@@ -69,12 +70,12 @@ int main(int argc, char const *argv[])
     // Affichage des 2 parametres valides
     printf("Analyseur SLR sur la table %s avec le mot \"%s\" :\n",pathFichier,mot);
 
-    // Initialistion du flot, de la pile
+    // Initialistion 
     flot = (char * )malloc(sizeMot * sizeof(char));
     strcpy(flot,mot);
     strcpy(pile,"0");
     strcpy(transition,"  ");
-    strcpy(listeRegle,"");
+    listeRegle = "";
 
     // Affichage du tableau et de la 1er ligne
     affichage_debut(sizeMot);
@@ -84,7 +85,7 @@ int main(int argc, char const *argv[])
     signed char valeurTransition = analyseurLR.t.trans[mot[0]];
 
     // boucle qui s'arrete si la valeur de transition est une erreur ou une acceptation
-    while(strcmp(pile,"acc") != 0 && strcmp(pile,"err") != 0)
+    while(pile[0]=='0')
     {
         /*** cas du decalage ***/
         if(valeurTransition > 0) {
@@ -100,23 +101,12 @@ int main(int argc, char const *argv[])
 
             // on ajoute a la pile l'element retire 
             sizePile += 2;
-            pile = (char *) realloc( pile , sizePile * sizeof(char) );
+            pile = (char *) realloc( pile , sizePile * sizeof(char));
             pile[sizePile-2] = caractereRetire;
 
             // puis on ajoute a la pile la valeur de reduction
             pile[sizePile-1] = valeurTransition + '0';
             pile[sizePile] = '\0';
-
-            // liste
-            char * buffer = (char *) malloc(strlen(listeRegle));
-            char * ajout = (char *) malloc(3);
-    
-            ajout[0] = caractereRetire;
-            ajout[1] = '(';
-            ajout[2] = ')';
-            ajout[3] = '\0';
-            strcat(strcpy(buffer, ajout), listeRegle);
-            listeRegle = buffer;
         }
         /*** cas d'une acceptation (le mot est reconnu) ***/
         else if(valeurTransition == -127){ 
@@ -132,7 +122,6 @@ int main(int argc, char const *argv[])
             //Symbole non terminal de la regle 
             caractereNonTerminal = analyseurLR.G.rules[-valeurTransition-1].lhs;
 
-
             /*** cas d'une transition en Epsilon (S: ) ***/
             if (strlen(analyseurLR.G.rules[-valeurTransition-1].rhs)==0) {
                 // le flot ne change pas
@@ -143,12 +132,17 @@ int main(int argc, char const *argv[])
                 // puis on ajoute a la pile la valeur de reduction
                 pile[sizePile-2] = caractereNonTerminal;
                 pile[sizePile-1] = analyseurLR.t.trans[256 *(pile[sizePile-3]-'0'+1)  - analyseurLR.G.rules[-valeurTransition-1].lhs]+'0';
+
+              
+                listeRegle = encadrerChaine(listeRegle,caractereNonTerminal);
+                
             }
             /*** cas d'une transition avec un caractere non terminal (exemple S: a$Sb) ***/
             else {
                 // le flot ne change pas
                 // on cherche le nombre de caractere de la regle reconnu
                 int nbCaractereRegle = strlen(analyseurLR.G.rules[-valeurTransition-1].rhs);
+
 
                 // on retire la regle de la pile
                 sizePile = sizePile -(2*(nbCaractereRegle-1));
@@ -159,11 +153,30 @@ int main(int argc, char const *argv[])
                 pile[sizePile-1] = analyseurLR.t.trans[256 *(pile[sizePile-3]-'0'+1)  - analyseurLR.G.rules[-valeurTransition-1].lhs]+'0';
                 pile[sizePile] = '\0';
 
+                for (int i = 0; i < nbCaractereRegle; i++)
+                {
+                    if(analyseurLR.G.rules[-valeurTransition-1].rhs<0) {
+                        if(i==1) {
+                            
+                        }
+                    }
+                    else {
+                        if(i==0) {
+                            listeRegle = ajoutDebutDeChaine(listeRegle,analyseurLR.G.rules[-valeurTransition-1].rhs[i]);
+                        }
+                        if(i==2) {
+                            listeRegle = ajoutFinDeChaine(listeRegle,analyseurLR.G.rules[-valeurTransition-1].rhs[i]);
+                            listeRegle = encadrerChaine(listeRegle,-analyseurLR.G.rules[-valeurTransition-1].rhs[i-1]);
+                        }
+                    }
+                }
+                
+
 
             }
             
             // ajout a la liste 
-            char * buffer = (char *) malloc(strlen(listeRegle));
+            /*char * buffer = (char *) malloc(strlen(listeRegle));
             char * ajoutDebut = (char *) malloc(2);
 
     
@@ -174,8 +187,7 @@ int main(int argc, char const *argv[])
     
             strcat(strcpy(buffer, ajoutDebut), listeRegle);
             strcat(buffer, ")");
-            listeRegle = buffer;
-            //S(a()S(a()S(a()S(a()S()b())b())b())b())
+            listeRegle = buffer;*/
         }
         /*** cas d'une erreur (le mot c'est pas reconnu) ***/
         else if (valeurTransition == 0) {
