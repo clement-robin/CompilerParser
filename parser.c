@@ -87,8 +87,16 @@ int main(int argc, char const *argv[])
     // boucle qui s'arrete si la valeur de transition est une erreur ou une acceptation
     while(pile[0]=='0')
     {
+        /*** cas d'une erreur (le mot c'est pas reconnu) ***/
+        if (valeurTransition == 0) {
+            pile = "err";
+        }
+        /*** cas d'une acceptation (le mot est reconnu) ***/
+        else if(valeurTransition == -127){ 
+            pile = "acc";
+        }
         /*** cas du decalage ***/
-        if(valeurTransition > 0) {
+        else  if(valeurTransition > 0) {
 
             // valeur de la transition
             transition[0] = 'd';
@@ -107,10 +115,6 @@ int main(int argc, char const *argv[])
             // puis on ajoute a la pile la valeur de reduction
             pile[sizePile-1] = valeurTransition + '0';
             pile[sizePile] = '\0';
-        }
-        /*** cas d'une acceptation (le mot est reconnu) ***/
-        else if(valeurTransition == -127){ 
-            pile = "acc";
         }
         /*** cas d'une reduction ***/
         else if(valeurTransition < 0) {
@@ -133,8 +137,8 @@ int main(int argc, char const *argv[])
                 pile[sizePile-2] = caractereNonTerminal;
                 pile[sizePile-1] = analyseurLR.t.trans[256 *(pile[sizePile-3]-'0'+1)  - analyseurLR.G.rules[-valeurTransition-1].lhs]+'0';
 
-              
-                listeRegle = encadrerChaine(listeRegle,caractereNonTerminal);
+                // on encadre la liste de regle (par exemple S(listeRegle) )
+                //listeRegle = encadrerChaine(listeRegle,caractereNonTerminal);
                 
             }
             /*** cas d'une transition avec un caractere non terminal (exemple S: a$Sb) ***/
@@ -153,7 +157,9 @@ int main(int argc, char const *argv[])
                 pile[sizePile-1] = analyseurLR.t.trans[256 *(pile[sizePile-3]-'0'+1)  - analyseurLR.G.rules[-valeurTransition-1].lhs]+'0';
                 pile[sizePile] = '\0';
 
-                for (int i = 0; i < nbCaractereRegle; i++)
+
+                // on ajoute les regles a la liste de regle selon la definition de cette regle
+                /*for (int i = 0; i < nbCaractereRegle; i++)
                 {
                     if(analyseurLR.G.rules[-valeurTransition-1].rhs<0) {
                         if(i==1) {
@@ -169,30 +175,10 @@ int main(int argc, char const *argv[])
                             listeRegle = encadrerChaine(listeRegle,-analyseurLR.G.rules[-valeurTransition-1].rhs[i-1]);
                         }
                     }
-                }
-                
-
-
+                }*/
             }
-            
-            // ajout a la liste 
-            /*char * buffer = (char *) malloc(strlen(listeRegle));
-            char * ajoutDebut = (char *) malloc(2);
-
-    
-            ajoutDebut[0] = caractereNonTerminal;
-            ajoutDebut[1] = '(';
-            ajoutDebut[2] = '\0';
-
-    
-            strcat(strcpy(buffer, ajoutDebut), listeRegle);
-            strcat(buffer, ")");
-            listeRegle = buffer;*/
         }
-        /*** cas d'une erreur (le mot c'est pas reconnu) ***/
-        else if (valeurTransition == 0) {
-            pile = "err";
-        }
+        
 
         // recuperation de la nouvelle valeur de transition dans le tableau
         valeurTransition = analyseurLR.t.trans[256 *(pile[sizePile-1]-'0') + flot[0]];

@@ -77,9 +77,15 @@ void affichage_ligne(char *val, char *flot, char *pile, int tailleMot)
     }
 }
 
-/*** si le symbole est terminal on encadre avec des parenthèses (exemple : S(chaine)) ***/
-/*** si le symbole n'est terminal on encadre avec des parenthèses (exemple : S(chaine)) ***/
-
+/**
+ * La fonction ajoutDebutDeChaine permet d'ajouter au debut de la chaine une chaine 
+ * tel que si la chaine etait S()b() et qu'on lui donne le caractere a
+ * la fonction retourne a()S()b()
+ * 
+ * @param chaine chaine de caractere que l'on souahite modifier
+ * @param caractere caratere que l'on souhaite ajouter
+ * @return char * chaine que l'on retourne
+ */
 char * ajoutDebutDeChaine(char * chaine, char caractere) {
     char * ajoutDebut = (char *) malloc(100 * sizeof(char));
 
@@ -88,12 +94,30 @@ char * ajoutDebutDeChaine(char * chaine, char caractere) {
     return ajoutDebut;
 }
 
+/**
+ * La fonction ajoutFinDeChaine permet d'ajouter a la fin de la chaine une chaine 
+ * tel que si la chaine etait a()S() et qu'on lui donne le caractere b
+ * la fonction retourne a()S()b()
+ * 
+ * @param chaine chaine de caractere que l'on souahite modifier
+ * @param caractere caratere que l'on souhaite ajouter
+ * @return char * chaine que l'on retourne
+ */
 char * ajoutFinDeChaine(char * chaine, char caractere) {
     sprintf(chaine,"%s%c()",chaine,caractere);
 
     return chaine;
 }
 
+/**
+ * La fonction encadrerChaine permet d'encadrer une chaine 
+ * tel que si la chaine etait a()S()b() et qu'on lui donne le caractere b
+ * la fonction retourne S(a()S()b())
+ * 
+ * @param chaine chaine de caractere que l'on souahite modifier
+ * @param caractere caratere que l'on souhaite ajouter
+ * @return char * chaine que l'on retourne
+ */
 char * encadrerChaine(char * chaine, char caractere){
     char * ajoutDebut = (char *) malloc(100 * sizeof(char));
 
