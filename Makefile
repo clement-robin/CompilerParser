@@ -1,12 +1,12 @@
-# Author : Clement ROBIN & Lucas DESHAYES 
+# Auteur : Clement ROBIN & Lucas DESHAYES 
 
 CC=gcc
 OPTS=-Wall
 FOLDER=sources
 MAIN=parser.c
 EXE=LRanalyzer
-DEPS=$(FOLDER)/LRGrammar.h $(FOLDER)/read_file.h outils.h
-PRECOMP=$(FOLDER)/LRGrammar.o $(FOLDER)/read_file.o outils.o
+DEPS=$(FOLDER)/LRGrammar.h $(FOLDER)/read_file.h outils.h arbre.h
+PRECOMP=$(FOLDER)/LRGrammar.o $(FOLDER)/read_file.o outils.o arbre.o
 
 all: $(PRECOMP)
 	@$(CC) $(OPT) $(MAIN) $(PRECOMP) -o $(EXE)

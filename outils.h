@@ -1,12 +1,10 @@
-/* Author : Clement ROBIN & Lucas DESHAYES */
+/* Auteur : Clement ROBIN & Lucas DESHAYES */
 
 #ifndef OUTILS
 #define OUTILS
 
 #include "sources/read_file.h"
 #include "sources/LRGrammar.h"
-
-
 
 
 /******* Fonctions d'affichage ******/

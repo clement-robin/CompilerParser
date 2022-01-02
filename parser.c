@@ -1,6 +1,7 @@
-/* Author : Clement ROBIN & Lucas DESHAYES */
+/* Auteur : Clement ROBIN & Lucas DESHAYES */
 
 #include "outils.h"
+#include "arbre.h"
 
 
 int main(int argc, char const *argv[])
@@ -18,9 +19,9 @@ int main(int argc, char const *argv[])
     char caractereNonTerminal;
     file_read analyseurLR;
 
-    /*** VERIFICATION : bon nombre d'arguments ? -> 3 attendus ***/
 
-    
+
+    /*** VERIFICATION : bon nombre d'arguments ? -> 3 attendus ***/
     if(argc < 3) {
         printf("erreur -- trop peu d'arguments (tableau SLR et mot a tester requis)\n");
         exit(EXIT_FAILURE);
@@ -62,20 +63,28 @@ int main(int argc, char const *argv[])
     strcpy(mot, argv[2]);
     printf("--> Le mot \"%s\" est valide\n\n",mot);
 
+    // Affichage des 2 parametres valides
+    printf("Analyseur SLR sur la table %s avec le mot \"%s\" :\n",pathFichier,mot);
+
+
 
     /*********************************/
     /*** DEBUT DE L'ALGORITHME SLR ***/
     /*********************************/
 
-    // Affichage des 2 parametres valides
-    printf("Analyseur SLR sur la table %s avec le mot \"%s\" :\n",pathFichier,mot);
-
+    
     // Initialistion 
     flot = (char * )malloc(sizeMot * sizeof(char));
     strcpy(flot,mot);
     strcpy(pile,"0");
     strcpy(transition,"  ");
     listeRegle = "";
+
+
+    // TEST 
+    neoudsRencontresOrphelins = (arbre **)malloc(strlen(mot) * 512 * sizeof(arbre *));
+    tailleNeoudsRencontresOrphelins = 0;
+    char neoudRecupere;
 
     // Affichage du tableau et de la 1er ligne
     affichage_debut(sizeMot);
@@ -87,6 +96,11 @@ int main(int argc, char const *argv[])
     // boucle qui s'arrete si la valeur de transition est une erreur ou une acceptation
     while(pile[0]=='0')
     {
+        // recuperation du noeud pour la construction de l'arbre
+        neoudRecupere = recup_node(flot[0], valeurTransition, analyseurLR.G);
+        //construction arbre
+        construire_arbre(neoudRecupere, valeurTransition, analyseurLR.G);
+
         /*** cas d'une erreur (le mot c'est pas reconnu) ***/
         if (valeurTransition == 0) {
             pile = "err";
@@ -186,8 +200,8 @@ int main(int argc, char const *argv[])
         // Affiche de la ligne selon la transiton, le flot, la pile et la taille du mot
         affichage_ligne(transition, flot, pile, sizeMot);
         if (strcmp(pile,"acc") == 0) {
-                printf("\n\n%s\n\n",listeRegle);
-
+            printf("\n\n");
+            print_arbre(neoudsRencontresOrphelins[0]);
         }
     }
 
