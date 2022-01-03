@@ -2,7 +2,63 @@
 
 #include "outils.h"
 
+
+
+
 /******* FONCTIONS ******/
+
+
+    /*** VERIFICATION : bon nombre d'arguments ? -> 3 attendus ***/
+
+void verification_nombre_arguments(int argc, char const *argv[])
+{
+    if (argc < 3)
+    {
+        printf("--> erreur -- trop peu d'arguments (tableau SLR et mot a tester requis)\n");
+        exit(EXIT_FAILURE);
+    }
+    else if (argc > 3)
+    {
+        printf("--> erreur -- trop d'arguments (tableau SLR et mot a tester requis)\n");
+        for (int i = 3; i < argc; i++)
+        {
+            printf("          %s <-- argument en trop\n", argv[i]);
+        }
+        exit(EXIT_FAILURE);
+    }   
+}
+
+    /*** VERIFICATION : le fichier existe ? (dans assets/) ***/
+
+bool verification_fichier(const char * fichier, file_read analyseurLR) {
+
+    char * pathFichier = (char *)malloc(strlen(fichier) + 1 * sizeof(char));
+    strcpy(pathFichier, fichier);
+
+    FILE *file = fopen(pathFichier, "r+");
+
+    if (file != NULL)
+    {
+        printf("--> Le fichier %s existe\n", pathFichier);
+
+        /*** VERIFICATION : le fichier est lisible par read_file ? ***/
+        analyseurLR = read_file(pathFichier);
+        printf("--> Le fichier %s est bien lu\n", pathFichier);
+        fclose(file);
+    }
+    else
+    {
+        fprintf(stderr, "--> erreur -- Impossible d'ouvrir le fichier %s\n", pathFichier);
+        exit(EXIT_FAILURE);
+    }
+    free(pathFichier);
+    return true;
+}
+   
+
+
+
+
 
 /**
  * La fonction affiche_debut affiche la mise en page de l'analyseur SLR
@@ -11,7 +67,7 @@
 void affichage_debut(int tailleMot)
 {
     printf("\n\n   ");
-    for (int i = 0; i < tailleMot - 2; i++)
+    for (int i = 0; i < tailleMot - 1; i++)
     {
         printf(" ");
     }
@@ -42,7 +98,7 @@ void affichage_ligne(char *val, char *flot, char *pile, int tailleMot)
         printf("%s", val);
         val[2] = '\0';
     }
-    int diff = tailleMot - strlen(flot);
+    int diff = tailleMot - strlen(flot) +1;
     for (int i = 0; i < 4 + diff - espace; i++)
     {
         printf(" ");
@@ -77,51 +133,3 @@ void affichage_ligne(char *val, char *flot, char *pile, int tailleMot)
     }
 }
 
-/**
- * La fonction ajoutDebutDeChaine permet d'ajouter au debut de la chaine une chaine 
- * tel que si la chaine etait S()b() et qu'on lui donne le caractere a
- * la fonction retourne a()S()b()
- * 
- * @param chaine chaine de caractere que l'on souahite modifier
- * @param caractere caratere que l'on souhaite ajouter
- * @return char * chaine que l'on retourne
- */
-char * ajoutDebutDeChaine(char * chaine, char caractere) {
-    char * ajoutDebut = (char *) malloc(100 * sizeof(char));
-
-    sprintf(ajoutDebut,"%c()%s",caractere,chaine);
-
-    return ajoutDebut;
-}
-
-/**
- * La fonction ajoutFinDeChaine permet d'ajouter a la fin de la chaine une chaine 
- * tel que si la chaine etait a()S() et qu'on lui donne le caractere b
- * la fonction retourne a()S()b()
- * 
- * @param chaine chaine de caractere que l'on souahite modifier
- * @param caractere caratere que l'on souhaite ajouter
- * @return char * chaine que l'on retourne
- */
-char * ajoutFinDeChaine(char * chaine, char caractere) {
-    sprintf(chaine,"%s%c()",chaine,caractere);
-
-    return chaine;
-}
-
-/**
- * La fonction encadrerChaine permet d'encadrer une chaine 
- * tel que si la chaine etait a()S()b() et qu'on lui donne le caractere b
- * la fonction retourne S(a()S()b())
- * 
- * @param chaine chaine de caractere que l'on souahite modifier
- * @param caractere caratere que l'on souhaite ajouter
- * @return char * chaine que l'on retourne
- */
-char * encadrerChaine(char * chaine, char caractere){
-    char * ajoutDebut = (char *) malloc(100 * sizeof(char));
-
-    sprintf(ajoutDebut,"%c(%s)",caractere,chaine);
-    
-    return ajoutDebut;
-}

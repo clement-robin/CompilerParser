@@ -4,6 +4,8 @@
 
 /******* FONCTIONS ******/
 
+
+
 /**
  * La fonction affichage_arbre permet d'afficher l'arbre de manière lineaire
  * Exemple S(a()S()b())
@@ -19,7 +21,7 @@ void affichage_arbre(arbre *racine){
 };
 
 /**
- * La f
+ * La
  * 
  * @param racine 
  */
