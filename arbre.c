@@ -5,9 +5,9 @@
 /******* FONCTIONS ******/
 
 /**
- *  
- * 
- * @param racine 
+ * La fonction affichage_arbre permet d'afficher l'arbre de manière lineaire
+ * Exemple S(a()S()b())
+ * @param racine pointeur vers la racince de l'arbre que l'on veut souhaite afficher)
  */
 void affichage_arbre(arbre *racine){
     printf("%c(",racine->valeur);
@@ -19,7 +19,7 @@ void affichage_arbre(arbre *racine){
 };
 
 /**
- * 
+ * La f
  * 
  * @param racine 
  */

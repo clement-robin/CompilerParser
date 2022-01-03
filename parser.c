@@ -19,10 +19,9 @@ int main(int argc, char const *argv[])
     char * mot;
     char * flot;
     char * pile = (char * )malloc(1 * sizeof(char));
-    char * transition = (char *)malloc(2 * sizeof(char));
+    char * transition = (char *)malloc(3 * sizeof(char));
     
-    arbre ** neoudsRencontresOrphelins = (arbre **)malloc(strlen(mot) * 512 * sizeof(arbre *));
-;
+    arbre ** neoudsRencontresOrphelins;
     file_read analyseurLR;
 
 
@@ -86,10 +85,12 @@ int main(int argc, char const *argv[])
 
     
     // Initialistion 
-    flot = (char * )malloc(tailleMot * sizeof(char));
+    flot = (char * )malloc(tailleMot+1 * sizeof(char));
     strcpy(flot,mot);
     strcpy(pile,"0");
     strcpy(transition,"  ");
+    neoudsRencontresOrphelins = (arbre **)malloc(strlen(mot) * 512 * sizeof(arbre *));
+
 
 
     // Affichage du tableau et de la 1er ligne
@@ -97,7 +98,7 @@ int main(int argc, char const *argv[])
     affichage_ligne(transition, flot, pile, tailleMot);
 
     // recuperation de la 1ere valeur de transition dans le tableau
-    signed char valeurTransition = analyseurLR.t.trans[mot[0]];
+    signed char valeurTransition = analyseurLR.t.trans[(signed char)mot[0]];
 
     // boucle qui s'arrete si la valeur de transition est une erreur ou une acceptation
     while(pile[0]=='0')
@@ -175,7 +176,7 @@ int main(int argc, char const *argv[])
             caractereNonTerminal = analyseurLR.G.rules[-valeurTransition-1].lhs;
 
             /*** cas d'une transition en Epsilon (S: ) ***/
-            if (strlen(analyseurLR.G.rules[-valeurTransition-1].rhs)==0) {
+            if (strlen((signed char)analyseurLR.G.rules[-valeurTransition-1].rhs)==0) {
                 // le flot ne change pas
                 // on ajoute a la pile le caractere non terminal correspondant
                 taillePile += 2;
