@@ -7,34 +7,46 @@
 int main(int argc, char const *argv[])
 {
     /*** VARIABLES ***/
-    int sizeMot;
-    int sizePile = 1;
+    int tailleMot;
+    int taillePile = 1;
+    int tailleNeoudsParcourus;
+
+    char caractereRetire;
+    char caractereNonTerminal;
+    char noeudActuel;
+
     char * pathFichier;
     char * mot;
     char * flot;
     char * pile = (char * )malloc(1 * sizeof(char));
     char * transition = (char *)malloc(2 * sizeof(char));
-    char * listeRegle = (char *)malloc(100 * sizeof(char));
-    char caractereRetire;
-    char caractereNonTerminal;
+    
+    arbre ** neoudsRencontresOrphelins = (arbre **)malloc(strlen(mot) * 512 * sizeof(arbre *));
+;
     file_read analyseurLR;
 
 
 
     /*** VERIFICATION : bon nombre d'arguments ? -> 3 attendus ***/
+    printf("Validation du nombre d'arguments en cours ...\n");
     if(argc < 3) {
-        printf("erreur -- trop peu d'arguments (tableau SLR et mot a tester requis)\n");
+        printf("--> erreur -- trop peu d'arguments (tableau SLR et mot a tester requis)\n");
         exit(EXIT_FAILURE);
 
     }
     else if(argc > 3) {
-        printf("erreur -- trop d'arguments (tableau SLR et mot a tester requis)\n");
+        printf("--> erreur -- trop d'arguments (tableau SLR et mot a tester requis)\n");
         for(int i = 3; i < argc; i++) {
             printf("          %s <-- argument en trop\n",argv[i]);
         }
         exit(EXIT_FAILURE);
     }
+    printf("--> Le nombre d'arguments est conforme\n");
+
+
     /*** VERIFICATION : le fichier existe ? (dans assets/) ***/
+    printf("Validation du fichier %s en cours ...\n",argv[1]);
+
     pathFichier = (char * )malloc(strlen(argv[1])+1 * sizeof(char));
     strcpy( pathFichier, argv[1]);
     
@@ -51,15 +63,15 @@ int main(int argc, char const *argv[])
     }
     else
     {
-        fprintf(stderr,"--> Impossible d'ouvrir le fichier %s\n",pathFichier);
+        fprintf(stderr,"--> erreur -- Impossible d'ouvrir le fichier %s\n",pathFichier);
         exit(EXIT_FAILURE);
 
     }
 
     /*** VERIFICATION : le mot est valide ? ***/
     printf("Validation du mot en cours ...\n");
-    sizeMot = strlen(argv[2])+1;
-    mot = (char * )malloc(sizeMot * sizeof(char));
+    tailleMot = strlen(argv[2])+1;
+    mot = (char * )malloc(tailleMot * sizeof(char));
     strcpy(mot, argv[2]);
     printf("--> Le mot \"%s\" est valide\n\n",mot);
 
@@ -74,21 +86,15 @@ int main(int argc, char const *argv[])
 
     
     // Initialistion 
-    flot = (char * )malloc(sizeMot * sizeof(char));
+    flot = (char * )malloc(tailleMot * sizeof(char));
     strcpy(flot,mot);
     strcpy(pile,"0");
     strcpy(transition,"  ");
-    listeRegle = "";
 
-
-    // TEST 
-    neoudsRencontresOrphelins = (arbre **)malloc(strlen(mot) * 512 * sizeof(arbre *));
-    tailleNeoudsRencontresOrphelins = 0;
-    char neoudRecupere;
 
     // Affichage du tableau et de la 1er ligne
-    affichage_debut(sizeMot);
-    affichage_ligne(transition, flot, pile, sizeMot);
+    affichage_debut(tailleMot);
+    affichage_ligne(transition, flot, pile, tailleMot);
 
     // recuperation de la 1ere valeur de transition dans le tableau
     signed char valeurTransition = analyseurLR.t.trans[mot[0]];
@@ -96,21 +102,32 @@ int main(int argc, char const *argv[])
     // boucle qui s'arrete si la valeur de transition est une erreur ou une acceptation
     while(pile[0]=='0')
     {
-        // recuperation du noeud pour la construction de l'arbre
-        neoudRecupere = recup_node(flot[0], valeurTransition, analyseurLR.G);
-        //construction arbre
-        construire_arbre(neoudRecupere, valeurTransition, analyseurLR.G);
 
         /*** cas d'une erreur (le mot c'est pas reconnu) ***/
         if (valeurTransition == 0) {
             pile = "err";
+
+            //arbre
+            noeudActuel = 0;
         }
         /*** cas d'une acceptation (le mot est reconnu) ***/
         else if(valeurTransition == -127){ 
             pile = "acc";
+
+            //arbre
+            noeudActuel = 0;
         }
         /*** cas du decalage ***/
         else  if(valeurTransition > 0) {
+
+            //arbre
+            noeudActuel = flot[0];
+            arbre* terminal = (arbre *)malloc(sizeof(arbre));
+            terminal->nombreFils = 0;
+            terminal->valeur = noeudActuel;
+            
+            neoudsRencontresOrphelins[tailleNeoudsParcourus] = terminal;
+            tailleNeoudsParcourus++;
 
             // valeur de la transition
             transition[0] = 'd';
@@ -122,16 +139,33 @@ int main(int argc, char const *argv[])
                 memmove(flot, flot + 1, strlen(flot));
 
             // on ajoute a la pile l'element retire 
-            sizePile += 2;
-            pile = (char *) realloc( pile , sizePile * sizeof(char));
-            pile[sizePile-2] = caractereRetire;
+            taillePile += 2;
+            pile = (char *) realloc( pile , taillePile * sizeof(char));
+            pile[taillePile-2] = caractereRetire;
 
             // puis on ajoute a la pile la valeur de reduction
-            pile[sizePile-1] = valeurTransition + '0';
-            pile[sizePile] = '\0';
+            pile[taillePile-1] = valeurTransition + '0';
+            pile[taillePile] = '\0';
         }
         /*** cas d'une reduction ***/
         else if(valeurTransition < 0) {
+
+            //arbre
+            noeudActuel = analyseurLR.G.rules[-valeurTransition - 1].lhs;
+            arbre * nonTerminal = (arbre*)malloc(sizeof(arbre));
+            nonTerminal->valeur = noeudActuel;
+            nonTerminal->nombreFils = 0;
+
+            int nbRightElement = strlen((const char*)analyseurLR.G.rules[-valeurTransition - 1].rhs);
+            while (nbRightElement!=0)
+            {
+                nonTerminal->fils[nonTerminal->nombreFils] = neoudsRencontresOrphelins[tailleNeoudsParcourus-nbRightElement];
+                nonTerminal->nombreFils++;
+                nbRightElement--;
+            }
+            tailleNeoudsParcourus -= strlen((const char*)analyseurLR.G.rules[-valeurTransition - 1].rhs);
+            neoudsRencontresOrphelins[tailleNeoudsParcourus] = nonTerminal;
+            tailleNeoudsParcourus++;
 
             // valeur de la transition
             transition[0] = 'r';
@@ -144,16 +178,13 @@ int main(int argc, char const *argv[])
             if (strlen(analyseurLR.G.rules[-valeurTransition-1].rhs)==0) {
                 // le flot ne change pas
                 // on ajoute a la pile le caractere non terminal correspondant
-                sizePile += 2;
-                pile = (char *) realloc( pile , sizePile * sizeof(char) );
+                taillePile += 2;
+                pile = (char *) realloc( pile , taillePile * sizeof(char) );
                 
                 // puis on ajoute a la pile la valeur de reduction
-                pile[sizePile-2] = caractereNonTerminal;
-                pile[sizePile-1] = analyseurLR.t.trans[256 *(pile[sizePile-3]-'0'+1)  - analyseurLR.G.rules[-valeurTransition-1].lhs]+'0';
+                pile[taillePile-2] = caractereNonTerminal;
+                pile[taillePile-1] = analyseurLR.t.trans[256 *(pile[taillePile-3]-'0'+1)  - analyseurLR.G.rules[-valeurTransition-1].lhs]+'0';
 
-                // on encadre la liste de regle (par exemple S(listeRegle) )
-                //listeRegle = encadrerChaine(listeRegle,caractereNonTerminal);
-                
             }
             /*** cas d'une transition avec un caractere non terminal (exemple S: a$Sb) ***/
             else {
@@ -163,45 +194,25 @@ int main(int argc, char const *argv[])
 
 
                 // on retire la regle de la pile
-                sizePile = sizePile -(2*(nbCaractereRegle-1));
-                pile = (char *) realloc( pile , sizePile * sizeof(char) );
+                taillePile = taillePile -(2*(nbCaractereRegle-1));
+                pile = (char *) realloc( pile , taillePile * sizeof(char) );
 
                 // on ajoute a la pile le caractere non terminal correspondant + la valeur de reduction 
-                pile[sizePile-2] = caractereNonTerminal;
-                pile[sizePile-1] = analyseurLR.t.trans[256 *(pile[sizePile-3]-'0'+1)  - analyseurLR.G.rules[-valeurTransition-1].lhs]+'0';
-                pile[sizePile] = '\0';
-
-
-                // on ajoute les regles a la liste de regle selon la definition de cette regle
-                /*for (int i = 0; i < nbCaractereRegle; i++)
-                {
-                    if(analyseurLR.G.rules[-valeurTransition-1].rhs<0) {
-                        if(i==1) {
-                            
-                        }
-                    }
-                    else {
-                        if(i==0) {
-                            listeRegle = ajoutDebutDeChaine(listeRegle,analyseurLR.G.rules[-valeurTransition-1].rhs[i]);
-                        }
-                        if(i==2) {
-                            listeRegle = ajoutFinDeChaine(listeRegle,analyseurLR.G.rules[-valeurTransition-1].rhs[i]);
-                            listeRegle = encadrerChaine(listeRegle,-analyseurLR.G.rules[-valeurTransition-1].rhs[i-1]);
-                        }
-                    }
-                }*/
+                pile[taillePile-2] = caractereNonTerminal;
+                pile[taillePile-1] = analyseurLR.t.trans[256 *(pile[taillePile-3]-'0'+1)  - analyseurLR.G.rules[-valeurTransition-1].lhs]+'0';
+                pile[taillePile] = '\0';
             }
         }
         
 
         // recuperation de la nouvelle valeur de transition dans le tableau
-        valeurTransition = analyseurLR.t.trans[256 *(pile[sizePile-1]-'0') + flot[0]];
+        valeurTransition = analyseurLR.t.trans[256 *(pile[taillePile-1]-'0') + flot[0]];
 
         // Affiche de la ligne selon la transiton, le flot, la pile et la taille du mot
-        affichage_ligne(transition, flot, pile, sizeMot);
+        affichage_ligne(transition, flot, pile, tailleMot);
         if (strcmp(pile,"acc") == 0) {
             printf("\n\n");
-            print_arbre(neoudsRencontresOrphelins[0]);
+            affichage_arbre(neoudsRencontresOrphelins[0]);
         }
     }
 
@@ -211,6 +222,13 @@ int main(int argc, char const *argv[])
     /*******************************/
 
     printf("\n\n");
+
+    free(flot);
+    free(mot);
+    free(pathFichier);
+    //free(pile);
+    free_arbre(neoudsRencontresOrphelins[0]);
+    free(neoudsRencontresOrphelins);
 
     return 0;
 }

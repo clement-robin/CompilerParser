@@ -15,13 +15,8 @@ typedef struct arbre
 }arbre;
 
 
-arbre **neoudsRencontresOrphelins;
-int tailleNeoudsRencontresOrphelins;
-
-void print_arbre(arbre * racine);
+void affichage_arbre(arbre * racine);
 void free_arbre(arbre * racine);
-char recup_node(char caractereLu, char transition, grammar parGrammar);
-void construire_arbre(char nodeRecup, signed char transition, grammar parGrammar);
 
 
 #endif
