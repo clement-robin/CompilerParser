@@ -48,15 +48,15 @@ int main(int argc, char const *argv[])
     /*********************************/
 
     // Initialistion des variables
-    pile = (char *)malloc(taillePile + 1 * sizeof(char)); // 0 + '\0'
-    flot = (char *)malloc(tailleMot + 1 * sizeof(char));  // taille du mot + '\0'
-    action = (char *)malloc(3 * sizeof(char));        // r ou d + valeur + '\0'
+    pile = (char *)malloc(taillePile + 1 * sizeof(char));   // 0 + '\0'
+    flot = (char *)malloc(tailleMot + 1 * sizeof(char));    // taille du mot + '\0'
+    action = (char *)malloc(3 * sizeof(char));              // r ou d + valeur + '\0'
     strcpy(flot, mot);
     strcpy(pile, "0");
     strcpy(action, "  ");
 
     // Initialistion des variables pour l'arbre
-    listeArbresFils = (arbre **)malloc(strlen(mot) * 512 * sizeof(arbre *));
+    listeArbresFils = (arbre **)malloc(strlen(mot) * TAILLEMAX * sizeof(arbre *));
     arbre *arbreVide = (arbre *)malloc(sizeof(arbre));
     arbreVide->nombreFils = 0;
     listeArbresFils[0] = arbreVide;
@@ -178,7 +178,7 @@ int main(int argc, char const *argv[])
         }
 
         // recuperation de la nouvelle valeur de action dans le tableau
-        valeurAction = analyseurLR.t.trans[256 * (pile[taillePile - 1] - '0') + flot[0]];
+        valeurAction = analyseurLR.t.trans[TAILLEMAX * (pile[taillePile - 1] - '0') + flot[0]];
 
         // Affiche de la ligne selon la transiton, le flot, la pile et la taille du mot
         affichage_ligne(action, flot, pile, tailleMot);

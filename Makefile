@@ -1,21 +1,20 @@
 # Auteurs : Clement ROBIN & Lucas DESHAYES 
 
 CC=gcc
-OPTS=-Wall
-FOLDER=sources
+OPTIONS=-Wall
+DOSSIER=sources
 MAIN=parser.c
 EXE=LRanalyzer
-DEPS=$(FOLDER)/LRGrammar.h $(FOLDER)/read_file.h outils.h arbre.h
-PRECOMP=$(FOLDER)/LRGrammar.o $(FOLDER)/read_file.o outils.o arbre.o
+POINTH=$(DOSSIER)/LRGrammar.h $(DOSSIER)/read_file.h outils.h arbre.h
+COMPILATION=$(DOSSIER)/LRGrammar.o $(DOSSIER)/read_file.o outils.o arbre.o
 
-all: $(PRECOMP)
-	@$(CC) $(OPTS) $(MAIN) $(PRECOMP) -o $(EXE)
-	@if [ -neq $(EXE) ]; then echo 'Compilation failed'; fi
+all: $(COMPILATION)
+	@$(CC) $(OPTIONS) $(MAIN) $(COMPILATION) -o $(EXE)
 
-%.o: %.c $(DEPS)
+%.o: %.c $(POINTH)
 	@$(CC) -c -o $@ $<
 
 clean:
-	rm $(FOLDER)/*.o
+	rm $(DOSSIER)/*.o
 	rm *.o
 	rm $(EXE)

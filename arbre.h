@@ -6,10 +6,11 @@
 #include "sources/read_file.h"
 #include "sources/LRGrammar.h"
 
+#define TAILLEMAX 256
 
 typedef struct arbre
 {
-    struct arbre* fils[100];
+    struct arbre* fils[TAILLEMAX];
     char valeur;
     int nombreFils;
 }arbre;
