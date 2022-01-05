@@ -1,4 +1,4 @@
-/* Auteur : Clement ROBIN & Lucas DESHAYES */
+/* Auteurs : Clement ROBIN & Lucas DESHAYES */
 
 #include "arbre.h"
 

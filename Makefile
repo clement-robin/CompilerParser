@@ -1,4 +1,4 @@
-# Auteur : Clement ROBIN & Lucas DESHAYES 
+# Auteurs : Clement ROBIN & Lucas DESHAYES 
 
 CC=gcc
 OPTS=-Wall
@@ -10,7 +10,7 @@ PRECOMP=$(FOLDER)/LRGrammar.o $(FOLDER)/read_file.o outils.o arbre.o
 
 all: $(PRECOMP)
 	@$(CC) $(OPTS) $(MAIN) $(PRECOMP) -o $(EXE)
-	@if [ -e $(EXE) ]; then echo 'Compilation de $(MAIN) ainsi que $(PRECOMP) reussi\nExecution avec :\n./$(EXE) + fichier SLR + mot'; fi
+	@if [ -neq $(EXE) ]; then echo 'Compilation failed'; fi
 
 %.o: %.c $(DEPS)
 	@$(CC) -c -o $@ $<
