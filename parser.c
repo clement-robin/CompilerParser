@@ -14,11 +14,12 @@ int main(int argc, char const *argv[])
     char caractereNonTerminal;
     char caractereArbreActuel;
 
-    
-    char *mot;
-    char *flot;
-    char *pile;
-    char *transition;
+    signed char valeurAction;
+
+    char * mot;
+    char * flot;
+    char * pile;
+    char * action;
 
     arbre **listeArbresFils;
     file_read analyseurLR;
@@ -32,7 +33,7 @@ int main(int argc, char const *argv[])
     if(verification_fichier(argv[1], analyseurLR))
         analyseurLR = read_file(argv[1]);
 
-    //le mot est valide ?
+    // Le mot est valide ?
     tailleMot = strlen(argv[2]) + 1;
     printf("Validation du mot en cours ...\n");
     mot = (char *)malloc(tailleMot * sizeof(char));
@@ -49,10 +50,10 @@ int main(int argc, char const *argv[])
     // Initialistion des variables
     pile = (char *)malloc(taillePile + 1 * sizeof(char)); // 0 + '\0'
     flot = (char *)malloc(tailleMot + 1 * sizeof(char));  // taille du mot + '\0'
-    transition = (char *)malloc(3 * sizeof(char));        // r ou d + valeur + '\0'
+    action = (char *)malloc(3 * sizeof(char));        // r ou d + valeur + '\0'
     strcpy(flot, mot);
     strcpy(pile, "0");
-    strcpy(transition, "  ");
+    strcpy(action, "  ");
 
     // Initialistion des variables pour l'arbre
     listeArbresFils = (arbre **)malloc(strlen(mot) * 512 * sizeof(arbre *));
@@ -62,27 +63,27 @@ int main(int argc, char const *argv[])
 
     // Affichage du tableau et de la 1er ligne
     affichage_debut(tailleMot);
-    affichage_ligne(transition, flot, pile, tailleMot);
+    affichage_ligne(action, flot, pile, tailleMot);
 
-    // Recuperation de la 1ere valeur de transition dans le tableau
-    signed char valeurTransition = analyseurLR.t.trans[(signed char)mot[0]];
+    // Recuperation de la 1ere valeur de action dans le tableau
+    valeurAction = analyseurLR.t.trans[(signed char)flot[0]];
 
-    // Boucle qui s'arrete si la valeur de transition est une erreur ou une acceptation
+    // Boucle qui s'arrete si la valeur de l'action est une erreur ou une acceptation
     while (pile[0] == '0')
     {
 
         /*** cas d'une erreur (le mot c'est pas reconnu) ***/
-        if (valeurTransition == 0)
+        if (valeurAction == 0)
         {
             strcpy(pile, "err");
         }
         /*** cas d'une acceptation (le mot est reconnu) ***/
-        else if (valeurTransition == -127)
+        else if (valeurAction == -127)
         {
             strcpy(pile, "acc");
         }
         /*** cas du decalage ***/
-        else if (valeurTransition > 0)
+        else if (valeurAction > 0)
         {
 
             // initialisation de l'arbre fils
@@ -95,9 +96,9 @@ int main(int argc, char const *argv[])
             listeArbresFils[nombreFilsArbreParcourus] = terminal;
             nombreFilsArbreParcourus++;
 
-            // valeur de la transition
-            transition[0] = 'd';
-            transition[1] = valeurTransition + '0';
+            // valeur de l'action
+            action[0] = 'd';
+            action[1] = valeurAction + '0';
 
             // on retire le 1er element du flot
             caractereRetire = flot[0];
@@ -110,21 +111,21 @@ int main(int argc, char const *argv[])
             pile[taillePile - 2] = caractereRetire;
 
             // puis on ajoute a la pile la valeur de reduction
-            pile[taillePile - 1] = valeurTransition + '0';
+            pile[taillePile - 1] = valeurAction + '0';
             pile[taillePile] = '\0';
         }
         /*** cas d'une reduction ***/
-        else if (valeurTransition < 0)
+        else if (valeurAction < 0)
         {
             // arbre : on va ajouter un nouveau fils pour la reduction correspondante
             // initialisation de l'arbre fils
-            caractereArbreActuel = analyseurLR.G.rules[-valeurTransition - 1].lhs;
+            caractereArbreActuel = analyseurLR.G.rules[-valeurAction - 1].lhs;
             arbre *arbreFils = (arbre *)malloc(1 * sizeof(arbre));
             arbreFils->valeur = caractereArbreActuel;
             arbreFils->nombreFils = 0;
 
             // on remplit l'arbre fils
-            int nombreElementsCorrects = strlen((const char *)analyseurLR.G.rules[-valeurTransition - 1].rhs);
+            int nombreElementsCorrects = strlen((const char *)analyseurLR.G.rules[-valeurAction - 1].rhs);
             while (nombreElementsCorrects != 0)
             {
                 arbreFils->fils[arbreFils->nombreFils] = listeArbresFils[nombreFilsArbreParcourus - nombreElementsCorrects];
@@ -133,19 +134,19 @@ int main(int argc, char const *argv[])
             }
 
             // on ajoute l'arbre fils à l'arbre
-            nombreElementsCorrects = strlen((const char *)analyseurLR.G.rules[-valeurTransition - 1].rhs);
+            nombreElementsCorrects = strlen((const char *)analyseurLR.G.rules[-valeurAction - 1].rhs);
             nombreFilsArbreParcourus = nombreFilsArbreParcourus - nombreElementsCorrects;
             listeArbresFils[nombreFilsArbreParcourus] = arbreFils;
             nombreFilsArbreParcourus++;
 
-            // valeur de la transition
-            transition[0] = 'r';
-            transition[1] = -valeurTransition + '0';
+            // valeur de l'action
+            action[0] = 'r';
+            action[1] = -valeurAction + '0';
 
             // Symbole non terminal de la regle
-            caractereNonTerminal = analyseurLR.G.rules[-valeurTransition - 1].lhs;
+            caractereNonTerminal = analyseurLR.G.rules[-valeurAction - 1].lhs;
 
-            /*** cas d'une transition en Epsilon (exemple S: ) ***/
+            /*** cas d'une regle en Epsilon (exemple S: ) ***/
             if (nombreElementsCorrects == 0)
             {
                 // le flot ne change pas
@@ -155,14 +156,15 @@ int main(int argc, char const *argv[])
 
                 // puis on ajoute a la pile la valeur de reduction
                 pile[taillePile - 2] = caractereNonTerminal;
-                pile[taillePile - 1] = analyseurLR.t.trans[256 * (pile[taillePile - 3] - '0' + 1) - analyseurLR.G.rules[-valeurTransition - 1].lhs] + '0';
+                pile[taillePile - 1] = analyseurLR.t.trans[256 * (pile[taillePile - 3] - '0' + 1) - analyseurLR.G.rules[-valeurAction - 1].lhs] + '0';
+                pile[taillePile] = '\0';
             }
-            /*** cas d'une transition avec un caractere non terminal (exemple S:a$Sb) ***/
+            /*** cas d'une regle avec un caractere non terminal (exemple S:a$Sb) ***/
             else
             {
                 // le flot ne change pas
                 // on cherche le nombre de caractere de la regle reconnu
-                int nbCaractereRegle = strlen((const char *)analyseurLR.G.rules[-valeurTransition - 1].rhs);
+                int nbCaractereRegle = strlen((const char *)analyseurLR.G.rules[-valeurAction - 1].rhs);
 
                 // on retire la regle de la pile
                 taillePile = taillePile - (2 * (nbCaractereRegle - 1));
@@ -170,28 +172,28 @@ int main(int argc, char const *argv[])
 
                 // on ajoute a la pile le caractere non terminal correspondant + la valeur de reduction
                 pile[taillePile - 2] = caractereNonTerminal;
-                pile[taillePile - 1] = analyseurLR.t.trans[256 * (pile[taillePile - 3] - '0' + 1) - analyseurLR.G.rules[-valeurTransition - 1].lhs] + '0';
+                pile[taillePile - 1] = analyseurLR.t.trans[256 * (pile[taillePile - 3] - '0' + 1) - analyseurLR.G.rules[-valeurAction - 1].lhs] + '0';
                 pile[taillePile] = '\0';
             }
         }
 
-        // recuperation de la nouvelle valeur de transition dans le tableau
-        valeurTransition = analyseurLR.t.trans[256 * (pile[taillePile - 1] - '0') + flot[0]];
+        // recuperation de la nouvelle valeur de action dans le tableau
+        valeurAction = analyseurLR.t.trans[256 * (pile[taillePile - 1] - '0') + flot[0]];
 
         // Affiche de la ligne selon la transiton, le flot, la pile et la taille du mot
-        affichage_ligne(transition, flot, pile, tailleMot);
+        affichage_ligne(action, flot, pile, tailleMot);
         if (strcmp(pile, "acc") == 0)
         {
             printf("\n\n");
             affichage_arbre(listeArbresFils[0]);
         }
+        
     }
+    printf("\n\n");
 
     /*******************************/
     /*** FIN DE L'ALGORITHME SLR ***/
     /*******************************/
-
-    printf("\n\n");
 
     free(flot);
     free(mot);
