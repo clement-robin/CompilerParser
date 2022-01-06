@@ -24,16 +24,21 @@ int main(int argc, char const *argv[])
     arbre **listeArbresFils;
     file_read analyseurLR;
 
-    // Vererifications
+    // Verifications
+    // nombre arguments
     printf("Validation du nombre d'arguments en cours ...\n");
     verification_nombre_arguments(argc, argv);
     printf("--> Le nombre d'arguments est conforme\n");
 
+
+    // le fichier est valide ?
     printf("Validation du fichier %s en cours ...\n", argv[1]);
     if(verification_fichier(argv[1], analyseurLR))
         analyseurLR = read_file(argv[1]);
+    else
+        printf("--> Le fichier n'est pas lisible\n");
 
-    // Le mot est valide ?
+    // le mot est valide ?
     tailleMot = strlen(argv[2]) + 1;
     printf("Validation du mot en cours ...\n");
     mot = (char *)malloc(tailleMot * sizeof(char));
