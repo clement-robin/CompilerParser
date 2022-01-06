@@ -1,0 +1,19 @@
+E:$E+$T
+E:$T
+T:$T*$F
+T:$F
+F:($E)
+F:x
+	x	+	*	(	)	$	E	T	F
+0	d5			d4			1	2	3
+1		d6				a
+2		r2	d7		d2	r2
+3		r4	r4		r4	r4
+4	d5			d4			8	2	3
+5		r6	r6		r6	r6
+6	d5			d4				9	3
+7	d5			d4					10
+8		d6			d11
+9		d1	d7		r1	r1
+10		r3	r3		r3	r3
+11		r5	r5		r5	r5

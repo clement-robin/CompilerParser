@@ -84,19 +84,23 @@ void affichage_debut(int tailleMot)
 void affichage_ligne(char *val, char *flot, char *pile, int tailleMot)
 {
     int espace = 0;
-    int valeur = val[1] - '0';
+    int valeurAction;
     if (strcmp(pile, "acc") == 0 || strcmp(pile, "err") == 0)
         printf("  ");
     else
     {
-        if (valeur >= 10)
+        valeurAction = val[1] - '0';
+        if (valeurAction >= 10)
         {
-            val[1] = valeur / 10 + '0';
-            val[2] = valeur % 10 + '0';
+            val[1] = valeurAction / 10 + '0';
+            val[2] = valeurAction % 10 + '0';
+            val[3] = '\0';
             espace = 1;
         }
+        else {
+            val[2] = '\0';
+        }
         printf("%s", val);
-        val[2] = '\0';
     }
     int diff = tailleMot - strlen(flot) +1;
     for (int i = 0; i < 4 + diff - espace; i++)
@@ -106,7 +110,7 @@ void affichage_ligne(char *val, char *flot, char *pile, int tailleMot)
     if (strcmp(pile, "acc") == 0)
         printf("accept");
     else if (strcmp(pile, "err") == 0)
-        printf("error");
+        printf("refuse");
     else
     {
         int compteur = 0;
@@ -114,15 +118,15 @@ void affichage_ligne(char *val, char *flot, char *pile, int tailleMot)
         {
             compteur++;
         }
-        valeur = pile[compteur-1] -'0';
-        if (valeur >= 10)
+        valeurAction = pile[compteur-1] -'0';
+        if (valeurAction >= 10)
         {
            
             char *buffer = (char *)malloc((compteur + 3) * sizeof(char));
             strcpy(buffer, pile);
 
-            buffer[compteur-1] = valeur / 10 + '0';
-            buffer[compteur] = valeur % 10 + '0';
+            buffer[compteur-1] = valeurAction / 10 + '0';
+            buffer[compteur] = valeurAction % 10 + '0';
             buffer[compteur + 1] = '\0';
             printf("%s | %s\n", flot, buffer);
         }

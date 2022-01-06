@@ -3,8 +3,8 @@
 #ifndef OUTILS
 #define OUTILS
 
-#include "sources/read_file.h"
-#include "sources/LRGrammar.h"
+#include "read_file.h"
+#include "LRGrammar.h"
 
 #define bool unsigned int
 #define true 1
