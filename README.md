@@ -22,7 +22,7 @@ Fourni avec le sujet, ces tableaux LR et leurs règles nous permettent de tester
 
 ### Dossier /sources :
 Fourni avec le sujet, les fichiers qui structures les tableaux selon leurs grammaires et les règles qu'elle contient en structures c sont :
-- **read_file.c** (et **reda_file.h**)
+- **read_file.c** (et **read_file.h**)
 - **LRGrammar.c** (et **LRGrammar.h**)
 
 A cela, nous avons développer la partie de l'analyseur LR.

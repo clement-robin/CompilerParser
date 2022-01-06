@@ -73,14 +73,14 @@ int main(int argc, char const *argv[])
     // Recuperation de la 1ere valeur de action dans le tableau
     valeurAction = analyseurLR.t.trans[(signed char)flot[0]];
 
-    // Boucle qui s'arrete si la valeur de l'action est une erreur ou une acceptation
+    // Boucle qui s'arrete si la valeur de l'action est un refus ou une acceptation
     while (pile[0] == '0')
     {
 
-        /*** cas d'une erreur (le mot c'est pas reconnu) ***/
+        /*** cas d'un refus (le mot c'est pas reconnu) ***/
         if (valeurAction == 0)
         {
-            strcpy(pile, "err");
+            strcpy(pile, "ref");
         }
         /*** cas d'une acceptation (le mot est reconnu) ***/
         else if (valeurAction == -127)

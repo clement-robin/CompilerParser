@@ -88,7 +88,7 @@ void affichage_ligne(char *val, char *flot, char *pile, int tailleMot)
 {
     int espace = 0;
     int valeurAction;
-    if (strcmp(pile, "acc") == 0 || strcmp(pile, "err") == 0)
+    if (strcmp(pile, "acc") == 0 || strcmp(pile, "ref") == 0)
         printf("  ");
     else
     {
@@ -113,7 +113,7 @@ void affichage_ligne(char *val, char *flot, char *pile, int tailleMot)
     }
     if (strcmp(pile, "acc") == 0)
         printf("accept");
-    else if (strcmp(pile, "err") == 0)
+    else if (strcmp(pile, "ref") == 0)
         printf("refuse");
     else
     {
