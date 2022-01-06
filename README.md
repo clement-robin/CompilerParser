@@ -18,7 +18,7 @@ Fourni avec le sujet, ces tableaux LR et leurs règles nous permettent de tester
 - **test2** 
 - **test3**
 - **test4**
-- **test5** (que nous avons ajouté pour test une exception)
+- **test5** (que nous avons ajouté pour tester une exception)
 
 ### Dossier /sources :
 Fourni avec le sujet, les fichiers qui structures les tableaux selon leurs grammaires et les règles qu'elle contient en structures c sont :

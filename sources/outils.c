@@ -2,14 +2,15 @@
 
 #include "outils.h"
 
-
-
-
 /******* FONCTIONS ******/
 
 
-    /*** VERIFICATION : bon nombre d'arguments ? -> 3 attendus ***/
-
+/**
+ * La fonction verification_nombre_arguments verifie si le bon nombre d'arguments sont donne a l'execution 
+ * soit 3 : l'executable, le fichier et le mot
+ * @param argc 
+ * @param argv 
+ */
 void verification_nombre_arguments(int argc, char const *argv[])
 {
     if (argc < 3)
@@ -25,14 +26,21 @@ void verification_nombre_arguments(int argc, char const *argv[])
             printf("          %s <-- argument en trop\n", argv[i]);
         }
         exit(EXIT_FAILURE);
-    }   
+    }
 }
 
+/**
+ * La fonction verification_fichier permet de verifier si un fichier existe bien dans son path
+ * puis de verifier s'il l'on le lire avec read_file
+ * @param fichier fichier que l'on souhaite verifier
+ * @param analyseurLR strucure de grammaire qui dont convenir a la bon execution
+ * @return true la verification vest valide
+ * @return false la verfication a echoue
+ */
+bool verification_fichier(const char *fichier, file_read analyseurLR)
+{
     /*** VERIFICATION : le fichier existe ? (dans assets/) ***/
-
-bool verification_fichier(const char * fichier, file_read analyseurLR) {
-
-    char * pathFichier = (char *)malloc(strlen(fichier) + 1 * sizeof(char));
+    char *pathFichier = (char *)malloc(strlen(fichier) + 1 * sizeof(char));
     strcpy(pathFichier, fichier);
 
     FILE *file = fopen(pathFichier, "r+");
@@ -45,7 +53,7 @@ bool verification_fichier(const char * fichier, file_read analyseurLR) {
         analyseurLR = read_file(pathFichier);
         printf("--> Le fichier %s est bien lu\n", pathFichier);
         fclose(file);
-    }
+    } 
     else
     {
         fprintf(stderr, "--> erreur -- Impossible d'ouvrir le fichier %s\n", pathFichier);
@@ -54,11 +62,6 @@ bool verification_fichier(const char * fichier, file_read analyseurLR) {
     free(pathFichier);
     return true;
 }
-   
-
-
-
-
 
 /**
  * La fonction affiche_debut affiche la mise en page de l'analyseur SLR
@@ -97,12 +100,13 @@ void affichage_ligne(char *val, char *flot, char *pile, int tailleMot)
             val[3] = '\0';
             espace = 1;
         }
-        else {
+        else
+        {
             val[2] = '\0';
         }
         printf("%s", val);
     }
-    int diff = tailleMot - strlen(flot) +1;
+    int diff = tailleMot - strlen(flot) + 1;
     for (int i = 0; i < 4 + diff - espace; i++)
     {
         printf(" ");
@@ -118,14 +122,14 @@ void affichage_ligne(char *val, char *flot, char *pile, int tailleMot)
         {
             compteur++;
         }
-        valeurAction = pile[compteur-1] -'0';
+        valeurAction = pile[compteur - 1] - '0';
         if (valeurAction >= 10)
         {
-           
+
             char *buffer = (char *)malloc((compteur + 3) * sizeof(char));
             strcpy(buffer, pile);
 
-            buffer[compteur-1] = valeurAction / 10 + '0';
+            buffer[compteur - 1] = valeurAction / 10 + '0';
             buffer[compteur] = valeurAction % 10 + '0';
             buffer[compteur + 1] = '\0';
             printf("%s | %s\n", flot, buffer);
@@ -136,4 +140,3 @@ void affichage_ligne(char *val, char *flot, char *pile, int tailleMot)
         }
     }
 }
-

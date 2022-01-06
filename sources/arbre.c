@@ -5,7 +5,6 @@
 /******* FONCTIONS ******/
 
 
-
 /**
  * La fonction affichage_arbre permet d'afficher l'arbre de manière lineaire
  * Exemple S(a()S()b())
@@ -21,9 +20,8 @@ void affichage_arbre(arbre *racine){
 };
 
 /**
- * La
- * 
- * @param racine 
+ * La fonction free_arbre permet de libéré l'espace alloué à  un un arbre
+ * @param racine racine de l'arbre dont on souhaite libérer de l'espace
  */
 void free_arbre(arbre * racine){
     if (racine != NULL) {
